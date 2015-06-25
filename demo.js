@@ -5,18 +5,14 @@
 
 var URL = 'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=your_key&format=json&nojsoncallback=1&tags=penguins';
 
+/* Creates the <img> element */
 function createImg(url) {
   var img = document.createElement('img');
   img.setAttribute('src', url);
   return img;
 }
 
-function append(fragment) {
-  return function(image) {
-    fragment.appendChild(image);
-  };
-}
-
+/* Builds the image URL for the image element */
 function buildUrl(photo) {
   var farmId = photo.farm;
   var serverId = photo.server;
@@ -26,10 +22,13 @@ function buildUrl(photo) {
     + '/' + photoId + '_' + secret + '_m.jpg';
 }
 
+/* Inserts the photos in the document */
 function insertPhotos(json) {
   var photos = json.photos.photo;
   var fragment = document.createDocumentFragment();
-  var appendToFragment = append(fragment);
+  var appendToFragment = function append(image) {
+    fragment.appendChild(image);
+  };
   photos.map(buildUrl).map(createImg).forEach(appendToFragment);
   document.body.appendChild(fragment);
 }
@@ -76,7 +75,7 @@ function responseDemo() {
     'Content-Type': 'application/json',
   'Cache-Control': 'max-age=3600'
   });
-  
+
   var response = new Response(JSON.stringify({photos: {photo: []}}), {'status': 200, headers: headers});
   response.json().then(function(json) {
     insertPhotos(json);
@@ -92,6 +91,6 @@ function streamingDemo() {
     if (!done) {
       // do something with each chunk
     }
-    
+
   });
 }
